@@ -1,19 +1,15 @@
 /**
  * Created by apple on 15/4/1.
  */
-var margin = {t:50,l:50,b:50,r:50},
-    width = $('.canvas').width()-margin.l-margin.r,
-    height = $('.canvas').height()-margin.t-margin.b;
+var margin = {t:30,l:250,b:20,r:250},
+    width = 1170/5,
+    height = 150;
 
-var svg = d3.select('.canvas')
-    .append('svg')
-    .attr('width',width+margin.l+margin.r)
-    .attr('height',height+margin.t+margin.b)
-    .append('g')
-    .attr('transform',"translate("+margin.l+","+margin.t+")");
+    //.attr('transform',"translate("+width+","+height+")");
 
 var projection = d3.geo.albersUsa()
-    .translate([width/2, height/2]);
+    .translate([width/2, height/2])
+    .scale(300);
 
 var path = d3.geo.path()
     .projection(projection);
@@ -30,26 +26,44 @@ var scaleColor = d3.scale.linear().domain([0,100]).range(["#fff","green"]);
 //import data
 queue()
     .defer(d3.json, "data/cbsa.tiger2013.json")
-    //.defer(d3.json,"data/CBSA_Feb2103_delineation.json")
-    //.defer(d3.json, "data/gz_2010_us_040_00_5m.json")
-    .defer(d3.csv, "data/USAaqi/aqireport1999.csv", parseData)
-    .defer(d3.csv,"data/USAaqi/aqireport1998.csv", parseData)
-    .await(function(err, counties, states){
+    .defer(d3.csv,"data/USAaqi/aqireport1980.csv",parseData)
+    .defer(d3.csv, "data/USAaqi/aqireport1981.csv", parseData)
+    .await(dataLoaded);
+    function dataLoaded(err,counties,year1980,year1981){
+        //console.log(year1980);
+        draw(counties,[
+            {year:"1980",series:year1980},
+            {year:"1981",series:year1981}
+        ]);
 
-        draw(counties, states);
-    })
+    };
 
-function draw(counties, states){
-    console.log(counties.features)
+function draw(counties,years){
+    console.log(counties)
+    console.log(years)
 
-    svg.selectAll('.county')
-        .data(counties.features)
+    var svg = d3.select('.canvas')
+        .selectAll('.small-canvas')
+        .data(years)
         .enter()
-        .append('path')
-        .attr('class','county')
-        .attr('d',path)//4000 pathes for counties
-        .style('fill',function(d){
-            var cbas = d.properties.GEOID
+        .append('div')
+        .attr('class','small-canvas') //how many of these?
+        //.style('height',(height+margin.t+margin.b)+'px')
+        .append('svg')
+        .attr('width',width)
+        .attr('height',height)
+        .append('g')
+        //.attr('transform','translate('+margin.l+','+margin.t+')')
+
+       var aqimap = svg.append('g')
+           //.attr('class','aqimap');
+
+            aqimap
+                .append('path')
+            .datum(counties.features)
+            .attr('d',path)//4000 pathes for counties
+            .style('fill',function(d){
+            var cbas = +d.properties.GEOID;
 
             if(medianByCbas.get(cbas) == undefined){
                 return 'none';
@@ -59,16 +73,18 @@ function draw(counties, states){
             return scaleColor(airPollution);
         });
 
-    //svg.append('path')
-    //    .datum(states)
-    //    .attr('class','state')
-    //    .attr('d',path)//datum give one path for states
 }
+
 
 function parseData(d){
     //console.log(d)
     //rateById.set(formatNumber(+d.id), +d.rate);
     var cbas = d['CBSA Code'];
-    var AQImedian = d['AQI Median']
+    var AQImedian = d['AQI Median'];
     medianByCbas.set(cbas, AQImedian);
+    return{
+        cbas:d['CBSA Code'],
+        AQImedian : d['AQI Median']
+    }
+
 }
