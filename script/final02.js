@@ -1,8 +1,16 @@
 /**
  * Created by apple on 15/4/11.
  */
+ /* this is NOT the one I have problem now! please see SCRIPT!!!!!*/ 
 /* this not finish yet!*/
 /* i trying to write the code like http://bost.ocks.org/mike/drought/, but I don't know how to queue data*/
+
+
+
+
+
+
+
 var margin = {t:30,l:250,b:20,r:250},
     width = 1170/5,
     height = 150;
