@@ -1,9 +1,32 @@
 /**
  * Created by apple on 15/4/1.
  */
+<<<<<<< HEAD
 var margin = {t:25,l:25,b:25,r:25},
     width = $('.canvas').width()/3-margin.l-margin.r,
     height = 300;
+=======
+ /* this is NOT the one I have problem now! please see SCRIPT!!!!!*/ 
+/* this not finish yet!*/
+/* i trying to write the code like http://bost.ocks.org/mike/drought/, but I don't know how to queue data*/
+
+
+
+
+
+
+
+var margin = {t:30,l:250,b:20,r:250},
+    width = 1170/5,
+    height = 150;
+
+
+var svg = d3.select('.canvas')
+    .append('svg')
+    .attr('width',width)
+    .attr('height',height)
+    .append('g')
+>>>>>>> 015aaa6dd920a53635fa2b7b84912fdbb7eaa8f2
 
 //.attr('transform',"translate("+width+","+height+")");
 
@@ -223,6 +246,7 @@ function draw(counties,data) {
 function parseData(d){
     //console.log(d)
     //rateById.set(formatNumber(+d.id), +d.rate);
+<<<<<<< HEAD
     //var cbas = +d['CBSA Code'];
     //var AQImedian = +d['AQI Median'];
     //medianByCbas.set(cbas, AQImedian);//TODO check this later
@@ -236,3 +260,9 @@ function parseData(d){
 
 
 
+=======
+    var cbas = d['CBSA Code'];
+    var AQImedian = d['AQI Median']
+    medianByCbas.set(cbas, AQImedian);
+}
+>>>>>>> 015aaa6dd920a53635fa2b7b84912fdbb7eaa8f2
