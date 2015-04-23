@@ -1,5 +1,5 @@
 html,body,h1,h2,h3,h4,p,div,ul,li,svg{
-    margin:0;
+    margin:0px;
     padding:0;
     font-size:100%;
 }
@@ -27,25 +27,30 @@ body{
 }
 h1{
     font-size: 1.8em;
-    margin: 30px 7px 10px;
+    margin: 50px 10px 50px 30px;
 }
 h2{
-    font-size:1.3em;
+
+    font-size:5px;
     margin: 0 0 5px;
 }
 p
 {
-    font-size: 10px;
-    left: 4px;
-    color: rgb(145,152,159);
-    /*z-index: 1;*/
+    margin: 30px;
+    width: 75%;
+    line-height: 130%;
+    text-align: left;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 /*------------tooltip-------------*/
 .custom-tooltip {
     padding: 8px;
-    background: rgb(50, 50, 50);
-    width: 200px;
+    background: rgb(50,50,50);
+    opacity:0.5;
+    width: 50px;
+    height:50px;
     position: absolute;
     visibility: hidden;
 
@@ -58,7 +63,7 @@ p
      text-align: center;
 
      height: 40px;
-     width: 150px;
+     width: 50px;
      float: left;
      line-height: 40px;
 
@@ -71,18 +76,22 @@ p
 .canvas .county{
     fill:none;
     stroke:#fff;
-    stroke-width:.5px;
+    stroke-width:0.2px;
 }
 .canvas .county:hover{
+    stroke:red;
     stroke-width:1.5px;
 }
 
-.canvas .state{
-    fill:none;
-    stroke:#fff;
-    stroke-width:.5px;
-}
+
 .canvas .small-canvas{
-    width:100%;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-top:0;
+    padding-left:30px;
+    float:left;
 }
 
+.canvas.year-name{
+    color:red;
+}
