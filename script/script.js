@@ -247,6 +247,10 @@ function draw(counties,years){
 
 
 
+    var tooltip = d3.select('.custom-tooltip');
+    tooltip
+        .append('h2')
+
 
 var target =svg
     .append('rect')
@@ -270,30 +274,29 @@ var yearText = aqimap
     .attr('text-anchor','middle')
     .style('fill','black');
     var valueText = aqimap
-        .append('text')
+        .append('span')
         .attr('class','value');//TODO how can I show up the value text in canvas
-
+    var thisEl;
     function onMouseEnter(){
+        var myText = d3.select(this);
+        var thisText = myText[0][0].__data__.properties.NAME;
         target.style('visibility','visible');
+        tooltip
+            .style('visibility','visible')
+            .style('fill', 'black')
+            .select('h2')
+            .html(thisText);
+        valueText
+            .style('visibility','visible')
+            .style('fill', 'black')
+            .select('h2')
+            .html(thisText);
 
-        var name = d3.select(this)
-             //console.log(this.parentElement.parentElement)
-            .append('svg')
-            .attr('width',100)
-            .attr('height',30);
-            name
-                .append('text')
-                .attr('class','name')
-                .text(function(d) {
-                console.log (d.properties.NAME)
-                 //return d.properties.NAME;
-                 // TODO how can I let the name show up in the canvas,the text is append in the path group, is that the reason?but how to select the parentElement?
+        //thisEl = d3.select(this);
+        //d3.select('.custom-tooltip')
+        //    .append('p')
 
-        })
-            .attr('x',width/2)
-            .attr('y',height)
-            .attr('text-anchor','middle')
-            .style('fill','black');
+
 
         /*var parentElem = d3.select('.canvas').node();
         var mouse = d3.mouse(parentElem);
@@ -324,12 +327,12 @@ var yearText = aqimap
         aqimap.forEach(function(d){
             //console.log(d)
 
-            var tooltip = d3.select('.custom-tooltip')
-                .style('visibility','visible');
-
-                tooltip
-                .select('h2')
-                .html('span');//TODO
+            //var tooltip = d3.select('.custom-tooltip')
+            //    .style('visibility','visible');
+                //
+                //tooltip
+                //.select('h2')
+                //.html('span');//TODO
             tooltip
                 .style('left',mouse[0]+10 + 'px')
                 .style('top',mouse[1] +10 + 'px');
