@@ -155,14 +155,17 @@ queue()
 
     };
 
-function draw(counties,years){
-    console.log(counties),
-    console.log(years);
+function draw(counties,dataByYear){
+    //console.log(counties),
+    //console.log(years);
+
+    //Turn years into a d3.map(), with the year being the lookup key
+    var years = d3.map(dataByYear, function(d){ return d.year; });
 
 
     var svg = d3.select('.canvas')
         .selectAll('.small-canvas')
-        .data(years)
+        .data(dataByYear)
         .enter()
         .append('div')
         .attr('class','small-canvas')//how many of these?
@@ -176,157 +179,131 @@ function draw(counties,years){
 
 
 
-    var aqimap = svg.append('g')
+    var aqimap = svg.append('g'); //bound with data with the form {year:"2013",series:map2013}
 
 
-        aqimap
-            .selectAll('.county')
-            .data(counties.features)
-            .enter()
-            .append('path')
-            .attr('class','county')
-            .attr('d',path)
-            // TODO combine csv to json
-            .style('fill',function(d) {
+    aqimap
+        .selectAll('.county')
+        .data(counties.features)
+        .enter()
+        .append('path')
+        .attr('class','county')
+        .attr('d',path)
+        // TODO combine csv to json
+        .style('fill',function(d) {
 
-                var this_year =  this.parentElement.parentElement.__data__.year;
+            var this_year =  ( d3.select(this.parentElement).datum() ).year;
 
-                years.forEach((function(each) {
+            //Task: given this_year, find the AQI value for particular CBSAFP and year
+            //First, find data for all CBSA for a particular year
+            var data = years.get(this_year); //of the form {year:"2013",series:map2013}
 
-                        if (each.year == this_year) {
+            //Then find aqi_val for a particular CBSA
+            if( data.series.get(d.properties.CBSAFP) != undefined){
+                aqi_val = data.series.get(d.properties.CBSAFP).AQI;
+            }
 
-                            if (each.series["_"][d.properties.CBSAFP] != undefined) {
-                                aqi_val = each.series["_"][d.properties.CBSAFP].AQI; //TODO
-                            }
-                            return
-                        }
-                }))
-                return scaleColor(aqi_val);
+            return scaleColor(aqi_val);
 
-            })
-            /*TODO show the pie chart when click each circle*/
-            .on('click', function(d){
-                var this_year =  this.parentElement.parentElement.__data__.year;
+        })
+        /*TODO show the pie chart when click each circle*/
+        .on('click', function(d){
+            console.log(d);
 
-                years.forEach((function(each) {
+            var this_year =  ( d3.select(this.parentElement).datum() ).year;
 
-                    if (each.year == this_year) {
+            var data = years.get(this_year);
 
-                        if (each.series["_"][d.properties.CBSAFP] != undefined) {
-                            aqi_val = each.series["_"][d.properties.CBSAFP].AQI;
-                            aqi_good = each.series["_"][d.properties.CBSAFP].good;
-                            aqi_total = each.series["_"][d.properties.CBSAFP].whole;
-                            aqi_moderate = each.series["_"][d.properties.CBSAFP].moderate;
-                            aqi_bad = each.series["_"][d.properties.CBSAFP].unhealth;
-                            aqi_worse = each.series["_"][d.properties.CBSAFP].veryUnhealth;
+            if( data.series.get(d.properties.CBSAFP) != undefined){
+                aqi_val = (data.series.get(d.properties.CBSAFP)).AQI;
+                aqi_good = (data.series.get(d.properties.CBSAFP)).good;
+                aqi_total = (data.series.get(d.properties.CBSAFP)).whole;
+                aqi_moderate = (data.series.get(d.properties.CBSAFP)).moderate;
+                aqi_bad = (data.series.get(d.properties.CBSAFP)).unhealth;
+                aqi_worse = (data.series.get(d.properties.CBSAFP)).veryUnhealth;
+            }
 
-                        }
-                        return
-                    }
-                }))
-                return //console.log(aqi_good);
-
-
+            return //console.log(aqi_good);
+        })
+        .on('mouseenter',onMouseEnter)
+        .on('mousemove',onMouseMove)
+        .on('mouseleave',onMouseLeave);
 
 
-            })
+        var tooltip = d3.select('.custom-tooltip');
 
-                .on('mouseenter',onMouseEnter)
-                .on('mousemove',onMouseMove)
-                .on('mouseleave',onMouseLeave);
-
-
-    var tooltip = d3.select('.custom-tooltip');
-    tooltip
-        .append('h2');
-
-
-var target =svg
-    .append('rect')
-    .attr('x',125)
-    .attr('y',0)
-    .attr('width',100)
-    .attr('height',30)
-    .attr('class','target')
-    .attr('fill','rgb(200,200,200)')
-    .style('stroke','rgb(80,80,80)')
-    .style('stroke-width','0.2px')
-    .style('visibility','hidden');
-var yearText = aqimap
-    .append('text')
-    .text(function(d){
-        return d.year;
-    })
-    .attr('class','year')
-    .attr('x',width/2)
-    .attr('y',height)
-    .attr('text-anchor','middle')
-    .style('fill','black');
-    var valueText = aqimap
-        .append('text')
-        .attr('class','value')
-        .style('fill','black')
-        .attr('x',125)
-        .attr('y',0);
-
-    function onMouseEnter(){
-        //console.log(this)
-        var myText = d3.select(this);
-        var thisText = myText[0][0].__data__.properties.NAME;
-
-        var parentElem = d3.select('.canvas').node(); //what node() do here?
-        var mouse = d3.mouse(parentElem);
-
-
-        tooltip
-            .style('visibility','visible')
-            .style('fill', 'black')
-            .select('h2')
-            .html(thisText);
-        tooltip
-            .style('left',mouse[0]+5 + 'px')
-            .style('top',mouse[1] +5 + 'px');
-
-
-
-
-
-
-
-    }
-/*  TODO how can I show up the value text in canvas*/
-    function onMouseMove(){
-        //console.log(this)
-        target.style('visibility','visible');
-        valueText.style('visibility','visible');
-        d3.select(this)
-            .select('.value')
-            .text(function(d) {
-
-                var this_year =  this.parentElement.parentElement.__data__.year;
-
-                years.forEach((function(each) {
-
-                    if (each.year == this_year) {
-
-                        if (each.series["_"][d.properties.CBSAFP] != undefined) {
-                            aqi_val = each.series["_"][d.properties.CBSAFP].AQI;
-                        }
-                        return
-                    }
-                }))
-                return aqi_val;
-
-            });
-
-    }
-
-    function onMouseLeave(){
-        target.style('visibility','hidden');
-        valueText.style('visibility','hidden');
-        d3.select('.custom-tooltip')
+        var target =svg
+            .append('rect')
+            .attr('x',125)
+            .attr('y',0)
+            .attr('width',100)
+            .attr('height',30)
+            .attr('class','target')
+            .attr('fill','rgb(200,200,200)')
+            .style('stroke','rgb(80,80,80)')
+            .style('stroke-width','0.2px')
             .style('visibility','hidden');
-    }
+        var yearText = aqimap
+            .append('text')
+            .text(function(d){
+                return d.year;
+            })
+            .attr('class','year')
+            .attr('x',width/2)
+            .attr('y',height)
+            .attr('text-anchor','middle')
+            .style('fill','black');
+        var valueText = aqimap
+            .append('text')
+            .attr('class','value')
+            .style('fill','black')
+            .attr('x',125)
+            .attr('y',0);
+
+        function onMouseEnter(d){
+            
+            /*SIQI: this is way too complicated for what you are trying to do!
+             *
+            var myText = d3.select(this);
+            var thisText = myText[0][0].__data__.properties.NAME;
+            */
+            var name = d.properties.NAME,
+                aqiValueText;
+
+            var this_year =  ( d3.select(this.parentElement).datum() ).year;
+
+            var data = years.get(this_year); //of the form {year:"2013",series:map2013}
+
+            //Then find aqi_val for a particular CBSA
+            aqiValueText = data.series.get(d.properties.CBSAFP)?data.series.get(d.properties.CBSAFP).AQI:"Not Available";
+
+            var parentElem = d3.select('.canvas').node(); //what node() do here?
+            var mouse = d3.mouse(parentElem);
+
+            tooltip
+                .style('visibility','visible')
+                .style('fill', 'black')
+                .select('h2')
+                .html(name);
+            tooltip
+                .select('.aqi-value')
+                .html(aqiValueText);
+            tooltip
+                .style('left',mouse[0]+5 + 'px')
+                .style('top',mouse[1] +5 + 'px');
+
+
+        }
+        /*  TODO how can I show up the value text in canvas*/
+        function onMouseMove(){
+
+        }
+
+        function onMouseLeave(){
+            valueText.style('visibility','hidden');
+            tooltip
+                .style('visibility','hidden');
+        }
 }
 
 
